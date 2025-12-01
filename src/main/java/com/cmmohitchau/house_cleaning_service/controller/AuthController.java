@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:5173")
 
 public class AuthController {
 
@@ -28,7 +28,9 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<SignupResponse> signup(@RequestBody SignupRequest request) {
+        System.out.println("request in backend : " + request);
         SignupResponse response = userService.signup(request);
+        System.out.println("response in backend : " + response);
         return ResponseEntity.ok(response);
     }
 

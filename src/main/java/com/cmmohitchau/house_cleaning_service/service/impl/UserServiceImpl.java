@@ -1,9 +1,6 @@
 package com.cmmohitchau.house_cleaning_service.service.impl;
 
-import com.cmmohitchau.house_cleaning_service.dto.user.LoginRequest;
-import com.cmmohitchau.house_cleaning_service.dto.user.LoginResponse;
-import com.cmmohitchau.house_cleaning_service.dto.user.SignupRequest;
-import com.cmmohitchau.house_cleaning_service.dto.user.SignupResponse;
+import com.cmmohitchau.house_cleaning_service.dto.user.*;
 import com.cmmohitchau.house_cleaning_service.model.User;
 import com.cmmohitchau.house_cleaning_service.repository.UserRepository;
 import com.cmmohitchau.house_cleaning_service.service.BookingService;
@@ -24,42 +21,43 @@ public class UserServiceImpl implements UserService {
     @Override
     public SignupResponse signup(SignupRequest request) {
 
-        if(userRepo.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already registered");
+        if (userRepo.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already exists");
         }
 
         User user = new User();
-        user.setEmail(request.getEmail());
+
         user.setName(request.getName());
+        user.setEmail(request.getEmail());
         user.setPasswordHash(request.getPassword());
 
-        User saved = userRepo.save(user);
+        User savedUser = userRepo.save(user);
 
-        return new SignupResponse(saved.getName() , saved.getEmail() , saved.getId());
+        UserDto userDto = new UserDto(
+                savedUser.getId(),
+                savedUser.getEmail(),
+                savedUser.getName()
+        );
+
+        return new SignupResponse(userDto);
+
     }
 
     @Override
     public LoginResponse login(LoginRequest request) {
 
-        Optional<User> optionalUser = userRepo.findByEmail(request.getEmail());
+        User user = userRepo.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if(optionalUser.isEmpty()) {
-            throw new RuntimeException("Email is not registered");
-        }
-
-        User user = optionalUser.get();
-
-        if(!user.getPasswordHash().equals(request.getPassword())) {
-            throw new RuntimeException("Incorrect password");
-        }
-
-        return new LoginResponse(
+        UserDto userDto = new UserDto(
                 user.getId(),
-                user.getName(),
-                user.getEmail()
+                user.getEmail(),
+                user.getName()
         );
 
+        return new LoginResponse(userDto);
     }
+
 
 
 

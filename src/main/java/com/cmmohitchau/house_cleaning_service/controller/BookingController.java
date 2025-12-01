@@ -20,6 +20,7 @@ public class BookingController {
 
     @GetMapping
     public List<Booking> getAllBooking() {
+
         return bookingService.getAllBooking();
     }
 
